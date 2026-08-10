@@ -392,6 +392,15 @@ export function buildApiUrl(baseUrl: string, path: string) {
     return `${apiBaseUrl}${path}`;
 }
 
+export function isOfficialArkBaseUrl(baseUrl: string) {
+    try {
+        const url = new URL(baseUrl.trim());
+        return url.protocol === "https:" && url.hostname === "ark.cn-beijing.volces.com" && url.pathname.replace(/\/+$/, "").toLowerCase() === "/api/v3";
+    } catch {
+        return false;
+    }
+}
+
 function normalizeArkPlanBaseUrl(baseUrl: string) {
     try {
         const url = new URL(baseUrl);
