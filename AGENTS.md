@@ -13,6 +13,16 @@
 - 不要改无关文件，不要顺手重构。
 - 如果工作区已有用户改动，不要回滚，不要覆盖；只在必要范围内追加修改。
 
+## Git 与 GitHub 协作规范
+
+- 使用个人 fork 开发：`origin` 指向个人 fork，`upstream` 指向官方仓库 `https://github.com/basketikun/infinite-canvas.git`；不要把功能分支直接推到上游仓库。
+- `main` 只用于同步 `upstream/main`，保持可快进合并；不要直接在 `main` 上开发功能或提交功能改动。
+- 每项功能在独立分支开发；Codex 创建的分支统一使用 `codex/<功能名>`，分支从已同步的 `main` 创建。
+- 同步上游前必须先确认工作区干净；存在未提交改动时，先提交到对应 WIP/功能分支，或使用 `git stash push -u` 暂存，不能为了同步而丢弃、覆盖或混入无关改动。
+- 同步顺序固定为：`git fetch upstream`、切换 `main`、`git merge --ff-only upstream/main`、`git push origin main`；不要在功能分支上直接执行无目标的 `git pull`。
+- 同步后在功能分支执行 `git rebase main`；发生冲突时保留上游和本分支的有效改动，解决后执行 `git rebase --continue`，不得用重置或检出覆盖任一方改动。
+- 已推送的功能分支经过 rebase 后，只能使用 `git push --force-with-lease` 更新个人 fork，不使用无保护的强制推送。
+
 ## 反复提醒沉淀
 
 - 如果开发过程中总是遇到某个问题，或者用户反复提醒同一个注意事项，需要把该注意事项补充到本文件。
