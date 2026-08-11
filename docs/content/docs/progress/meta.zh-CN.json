@@ -5,6 +5,7 @@
   "pages": [
     "[更新日志](/zh-CN/docs/progress/changelog)",
     "local-agent-integration-plan",
+    "tv-media-short-video-agent-plan",
     "prompt-chip-input-plan",
     "pending-test",
     "todo"

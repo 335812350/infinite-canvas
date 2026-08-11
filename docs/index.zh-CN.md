@@ -32,6 +32,7 @@
 ## 项目进度
 
 - [更新日志](/zh-CN/docs/progress/changelog)
+- [电视媒资短视频创作 Agent 方案](/zh-CN/docs/progress/tv-media-short-video-agent-plan)
 - [待测试](/zh-CN/docs/progress/pending-test)
 - [TODO](/zh-CN/docs/progress/todo)
 

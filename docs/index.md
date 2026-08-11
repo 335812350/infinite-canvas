@@ -33,6 +33,7 @@
 ## Project Progress
 
 - [Changelog](/docs/progress/changelog)
+- [TV Media Short-Video Agent Plan (Chinese)](/zh-CN/docs/progress/tv-media-short-video-agent-plan)
 - [Pending Tests](/docs/progress/pending-test)
 - [TODO](/docs/progress/todo)
 
