@@ -9,3 +9,11 @@ foreach ($name in @("vite", "agent")) {
         Remove-Item -LiteralPath $pidPath -Force
     }
 }
+
+# Earlier releases only recorded the command-shell PID. Stop orphaned listeners
+# as well, so the next startup cannot silently fall back to another port.
+foreach ($port in @(3000, 17371)) {
+    Get-NetTCPConnection -State Listen -LocalPort $port -ErrorAction SilentlyContinue |
+        Select-Object -ExpandProperty OwningProcess -Unique |
+        ForEach-Object { taskkill.exe /PID $_ /T /F | Out-Null }
+}
