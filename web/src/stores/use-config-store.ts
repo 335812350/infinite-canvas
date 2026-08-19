@@ -380,6 +380,10 @@ function normalizeApiFormat(apiFormat: unknown): ApiCallFormat {
     return apiFormat === "gemini" || apiFormat === "ark" ? apiFormat : "openai";
 }
 
+export function boolConfig(value: string, fallback: boolean) {
+    return value ? value === "true" : fallback;
+}
+
 function uniqueModelOptions(models: string[]) {
     return Array.from(new Set((models || []).map((model) => model.trim()).filter(Boolean)));
 }
@@ -399,6 +403,10 @@ export function isOfficialArkBaseUrl(baseUrl: string) {
     } catch {
         return false;
     }
+}
+
+export function buildArkApiUrl(baseUrl: string, path: string) {
+    return isOfficialArkBaseUrl(baseUrl) ? `/api/ark${path}` : buildApiUrl(baseUrl, path);
 }
 
 function normalizeArkPlanBaseUrl(baseUrl: string) {
