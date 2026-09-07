@@ -18,8 +18,11 @@ import { SkillStore, SkillStoreError } from "../skills/store.js";
 export function startHttpServer() {
     const config = loadConfig(true);
     const port = Number(process.env.PORT) || Number(new URL(config.url).port) || DEFAULT_PORT;
-    config.url = `http://127.0.0.1:${port}`;
-    saveConfig(config);
+    const nextUrl = `http://127.0.0.1:${port}`;
+    if (config.url !== nextUrl) {
+        config.url = nextUrl;
+        saveConfig(config);
+    }
 
     const initialProject = getProject(config, DEFAULT_PROJECT_ID);
     const session = new CanvasSession(initialProject.activeThreadId || "", initialProject.id);

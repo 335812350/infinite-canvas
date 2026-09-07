@@ -571,7 +571,7 @@ function TextContent({ node, theme, isEditingContent, textareaRef, mentionRefere
                         onWheel={(event) => event.stopPropagation()}
                     />
                 ) : content ? (
-                    <div className={`thin-scrollbar block h-full w-full overflow-y-auto whitespace-pre-wrap break-words bg-transparent font-mono ${paddingClass}`} style={textStyle} onWheel={(event) => event.stopPropagation()}>
+                    <div className={`thin-scrollbar block h-full w-full overflow-y-auto whitespace-pre-wrap break-words bg-transparent font-mono ${paddingClass}`} style={textStyle}>
                         {content}
                     </div>
                 ) : primaryText ? (

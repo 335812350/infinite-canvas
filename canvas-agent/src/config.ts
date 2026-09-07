@@ -3,6 +3,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+import { logger } from "./utils/logger.js";
+
 export const DEFAULT_PORT = 17371;
 export const CONFIG_DIR = process.env.CANVAS_AGENT_CONFIG_DIR || path.join(os.homedir(), ".infinite-canvas");
 export const CONFIG_FILE = path.join(CONFIG_DIR, "canvas-agent.json");
@@ -28,13 +30,16 @@ export type AgentProjectInput = { name: string; workspacePath: string };
 
 /** 读取本地 Canvas Agent 配置，不存在时生成默认配置。 */
 export function loadConfig(create = false): CanvasAgentConfig {
-    try {
-        return JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8")) as CanvasAgentConfig;
-    } catch {
-        const config = { url: `http://127.0.0.1:${Number(process.env.PORT) || DEFAULT_PORT}`, token: crypto.randomBytes(18).toString("hex") };
-        if (create) saveConfig(config);
-        return config;
+    if (fs.existsSync(CONFIG_FILE)) {
+        try {
+            return JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8")) as CanvasAgentConfig;
+        } catch (error) {
+            throw new Error(`Canvas Agent config is invalid: ${CONFIG_FILE}. Restore the backup or repair the JSON before restarting.`, { cause: error });
+        }
     }
+    const config = { url: `http://127.0.0.1:${Number(process.env.PORT) || DEFAULT_PORT}`, token: crypto.randomBytes(18).toString("hex") };
+    if (create) saveConfig(config);
+    return config;
 }
 
 /** 将 Canvas Agent 配置写入用户配置目录。 */
@@ -45,7 +50,14 @@ export function saveConfig(config: CanvasAgentConfig) {
 /** 写入配置并强制目录 0700、文件 0600，包括纠正已有宽松权限。 */
 export function writeConfigFile(dir: string, file: string, config: CanvasAgentConfig) {
     fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
-    fs.writeFileSync(file, JSON.stringify(config, null, 2), { mode: 0o600 });
+    const temp = `${file}.${process.pid}.${crypto.randomUUID()}.tmp`;
+    try {
+        fs.writeFileSync(temp, JSON.stringify(config, null, 2), { mode: 0o600 });
+        fs.chmodSync(temp, 0o600);
+        fs.renameSync(temp, file);
+    } finally {
+        fs.rmSync(temp, { force: true });
+    }
     fs.chmodSync(dir, 0o700);
     fs.chmodSync(file, 0o600);
 }
@@ -151,7 +163,14 @@ function initializeWorkspace(workspacePath: string, createDirectory: boolean) {
     assertExistingDirectory(workspacePath);
     const instructionsFile = path.join(workspacePath, "AGENTS.md");
     const current = fs.existsSync(instructionsFile) ? fs.readFileSync(instructionsFile, "utf8") : "";
-    if (!current || current.startsWith("# Infinite Canvas Agent")) fs.writeFileSync(instructionsFile, AGENT_PROMPT);
+    if (!current || current.startsWith("# Infinite Canvas Agent")) {
+        try {
+            fs.writeFileSync(instructionsFile, AGENT_PROMPT);
+        } catch (error) {
+            // AGENTS.md is an optional workspace hint; permission failures must not stop the HTTP bridge.
+            logger.warn("Unable to update workspace AGENTS.md; continuing startup", { workspacePath, error });
+        }
+    }
     initializedWorkspaces.add(workspacePath);
 }
 

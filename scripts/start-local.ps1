@@ -21,7 +21,7 @@ function Start-ManagedProcess([string]$name, [string]$filePath, [string[]]$argum
     if (Test-Path $pidPath) {
         $existing = [int](Get-Content $pidPath | Select-Object -First 1)
         if (Get-Process -Id $existing -ErrorAction SilentlyContinue) {
-            if (!$restart) { return }
+            if (!$restart) { return $false }
             Stop-ManagedProcess $name
         } else {
             Remove-Item -LiteralPath $pidPath -Force -ErrorAction SilentlyContinue
@@ -33,6 +33,22 @@ function Start-ManagedProcess([string]$name, [string]$filePath, [string[]]$argum
     if ($errorLog) { $options.RedirectStandardError = $errorLog }
     $started = Start-Process @options
     $started.Id | Set-Content -Path $pidPath
+    return $true
+}
+
+function Confirm-WebReady {
+    for ($attempt = 0; $attempt -lt 40; $attempt++) {
+        try {
+            $response = Invoke-WebRequest -Uri "http://localhost:3000/" -TimeoutSec 2 -UseBasicParsing
+            if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 500) { return }
+        } catch {}
+        Start-Sleep -Milliseconds 250
+    }
+    throw "Vite did not open http://localhost:3000/."
+}
+
+function Open-WebApp {
+    Start-Process "http://localhost:3000/"
 }
 
 function Confirm-AgentReady([string]$outputLog, [string]$errorLog) {
@@ -66,6 +82,8 @@ if (!(Test-Path (Join-Path $agent "node_modules\\tsx\\package.json"))) {
     $install = Start-Process -FilePath $bun -ArgumentList @("install", "--frozen-lockfile") -WorkingDirectory $agent -RedirectStandardOutput $agentOutputLog -RedirectStandardError $agentErrorLog -WindowStyle Hidden -PassThru -Wait
     if ($install.ExitCode -ne 0) { throw "Canvas Agent dependency install failed. See $agentErrorLog" }
 }
-Start-ManagedProcess "vite" $env:ComSpec @("/d", "/c", $viteCommand) $root
-Start-ManagedProcess "agent" $bun @("src/index.ts") $agent $true $agentOutputLog $agentErrorLog
+Start-ManagedProcess "vite" $env:ComSpec @("/d", "/c", $viteCommand) $root | Out-Null
+Confirm-WebReady
+Open-WebApp
+Start-ManagedProcess "agent" $bun @("src/index.ts") $agent $true $agentOutputLog $agentErrorLog | Out-Null
 Confirm-AgentReady $agentOutputLog $agentErrorLog

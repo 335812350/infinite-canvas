@@ -37,7 +37,10 @@ description: 当前版本已实现但仍需人工验证的变更项
 
 - 顶部 GitHub 图标：点击后应在新标签页打开个人 fork 仓库 `https://github.com/335812350/infinite-canvas`。
 
-- 本地启动脚本：双击 `start-local.bat` 应在后台启动 Vite 和 Canvas Agent，重复启动不应创建重复进程；双击 `stop-local.bat` 应结束两个进程及其子进程，随后可再次手动启动。
+- 本地启动脚本：双击 `start-local.bat` 应在后台启动 Vite、自动打开 `http://localhost:3000/` 并启动仓库源码 Canvas Agent；双击 `start-release.bat` 应执行同样流程但使用 npm 发布的 Agent。每次启动应重启 Agent 但不创建重复 Vite，验证 `17371` 返回要求的协议版本；Agent 配置或工作区 `AGENTS.md` 无法重写时不得阻断服务和页面打开；双击 `stop-local.bat` 应结束两个进程及其子进程，随后清理端口 `3000` 和 `17371` 的残留服务，以方便下一次再启动。
+- Canvas Agent 配置完整性：已有 `canvas-agent.json` 损坏时，应停止启动并给出明确修复错误，不得在内存中生成与浏览器已保存 token 不一致的临时 token 后只显示笼统连接失败。
+- Canvas Agent 配置写入：更新本地 Agent 设置或项目时应采用临时文件原子替换；写入中断后必须保留原本有效的 token 和项目注册表。
+- 画布滚轮导航：普通滚轮应纵向平移，Shift + 滚轮应横向平移，Ctrl + 滚轮应以鼠标位置缩放；鼠标经过非编辑状态的文本节点时不应阻断画布平移。
 
 - 滚轮导航：在画布上直接滚动时，上滚应向上移动画布、下滚应向下移动画布；按住 Shift 时，上滚应向左移动、下滚应向右移动且垂直位置保持不变；按住 Control 时应以鼠标位置为中心缩放画布。经过普通文本节点时平移不应中断，但正在编辑的文本和媒体控件仍应保留自身交互。
 

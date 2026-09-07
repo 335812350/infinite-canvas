@@ -148,7 +148,6 @@ export const useCanvasStore = create<CanvasStore>()(
                 ({
                     projects: state.projects,
                     deletedProjects: state.deletedProjects,
-                }) as StorageValue<CanvasStore>["state"],
                 }) as PersistedCanvasState,
             version: 1,
             migrate: (persistedState) => {
