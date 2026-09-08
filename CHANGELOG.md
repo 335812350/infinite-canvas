@@ -2,6 +2,7 @@
 
 ## Unreleased
 
++ [修复] 补齐中英文语言包中的视频模式、本地代理、画布分组与帧截取、模型脚本编辑器等文案，避免界面显示原始翻译键。
 + [修复] 恢复 `start-local.bat`、`stop-local.bat` 及本地停止脚本，适配当前 Canvas Agent 协议，并在 Vite 就绪后自动打开本地界面。
 + [修复] Canvas Agent 启动时仅在配置实际变化后写回配置文件，避免 Windows 权限或文件占用导致本地服务无法启动。
 + [修复] 工作区 `AGENTS.md` 无法写入时不再阻断 Canvas Agent 启动，前端仍可打开并连接本地服务。
